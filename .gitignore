@@ -53,3 +53,7 @@ mx.scratch
 *.launch
 *.elf
 
+*.axf
+*.hex
+*.bin
+

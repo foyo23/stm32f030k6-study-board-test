@@ -22,7 +22,6 @@
 #include "main.h"
 #include "adc.h"
 #include "i2c.h"
-#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -127,6 +126,26 @@ void LEDInit()
   gpio_initStructure.Speed = LL_GPIO_SPEED_HIGH;
   LL_GPIO_Init( GPIOB, &gpio_initStructure );
 }
+
+#define KEY1_PIN LL_GPIO_PIN_3  //PB3
+#define KEY2_PIN LL_GPIO_PIN_1		//PA1
+void KEYInit()
+{
+	LL_GPIO_InitTypeDef gpio_initstructure;
+	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_GPIOA | LL_AHB1_GRP1_PERIPH_GPIOB );
+	gpio_initstructure.Pin = KEY1_PIN;
+	gpio_initstructure.Mode = LL_GPIO_MODE_INPUT;
+	gpio_initstructure.Pull = LL_GPIO_PULL_UP;
+	gpio_initstructure.Speed = LL_GPIO_SPEED_HIGH;
+	LL_GPIO_Init( GPIOB, &gpio_initstructure );
+	
+	gpio_initstructure.Pin = KEY2_PIN;
+	gpio_initstructure.Mode = LL_GPIO_MODE_INPUT;
+	gpio_initstructure.Pull = LL_GPIO_PULL_UP;
+	gpio_initstructure.Speed = LL_GPIO_SPEED_HIGH;
+	LL_GPIO_Init( GPIOA, &gpio_initstructure );
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -163,21 +182,18 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC_Init();
+  //MX_ADC_Init();
   MX_USART1_UART_Init();
-  MX_TIM3_Init();
-  MX_TIM14_Init();
-  MX_TIM16_Init();
+  //MX_TIM3_Init();
+  //MX_TIM14_Init();
+  //MX_TIM16_Init();
   //MX_I2C1_SMBUS_Init();
-  MX_SPI1_Init();
-  MX_TIM1_Init();
+  //MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 	BeepInit();
 	LEDInit();
-  /* USER CODE END 2 */
+	KEYInit();
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
 	delay_ms( 500 );
 	USART1_printf( "started \r\n" );
 	delay_ms( 500 );
@@ -185,12 +201,17 @@ int main(void)
 	delay_ms( 500 );
 	BEEP_OFF();
   delay_ms( 500 );
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		USART1_printf( "USART1_printf ... \r\n" );
+		//USART1_printf( "USART1_printf ... \r\n" );
+		/*
 		LL_GPIO_SetOutputPin( GPIOA, LED1_PIN );
 		delay_ms( 500 );
 		LL_GPIO_SetOutputPin( GPIOA, LED2_PIN );
@@ -203,6 +224,28 @@ int main(void)
 		delay_ms( 500 );
 		LL_GPIO_ResetOutputPin( GPIOA, LED1_PIN );
 		delay_ms( 1500 );
+		*/
+		
+		if( 1 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {  // if key down
+			delay_ms(5);
+			//USART1_printf( "key1 down\r\n" );
+			while( 1 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {   // wait for key up
+				;				
+			}
+			delay_ms(5);
+			//USART1_printf( "key1 up\r\n" );
+			//delay_ms(5);
+			USART1_printf( "key1 pressed\r\n" );
+		}
+		if( 1 == LL_GPIO_IsInputPinSet( GPIOA, KEY2_PIN ) ) {
+			delay_ms(5);
+			while( 1 == LL_GPIO_IsInputPinSet( GPIOB, KEY2_PIN ) ) {
+				;
+			}
+			delay_ms(5);
+			USART1_printf( "key2 pressed" );
+		}
+		USART1_printf( "...\r\n" );
 	}
   /* USER CODE END 3 */
 }
