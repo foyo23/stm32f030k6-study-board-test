@@ -71,10 +71,21 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void EXTI0_1_IRQHandler_callback(void);
+void EXTI2_3_IRQHandler_callback(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define key2_Pin LL_GPIO_PIN_1
+#define key2_GPIO_Port GPIOA
+#define key2_EXTI_IRQn EXTI0_1_IRQn
+#define led1_Pin LL_GPIO_PIN_4
+#define led1_GPIO_Port GPIOA
+#define led2_Pin LL_GPIO_PIN_6
+#define led2_GPIO_Port GPIOA
+#define key1_Pin LL_GPIO_PIN_3
+#define key1_GPIO_Port GPIOB
+#define key1_EXTI_IRQn EXTI2_3_IRQn
 #ifndef NVIC_PRIORITYGROUP_0
 #define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
                                                                  4 bits for subpriority */

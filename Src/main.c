@@ -146,6 +146,31 @@ void KEYInit()
 	LL_GPIO_Init( GPIOA, &gpio_initstructure );
 }
 
+// only setup key1
+void EXTI_KEYInit() {
+	LL_GPIO_InitTypeDef gpio_init_structure;
+	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_GPIOB );
+	gpio_init_structure.Pin = KEY1_PIN;
+	gpio_init_structure.Mode = LL_GPIO_MODE_INPUT;
+	gpio_init_structure.Pull = LL_GPIO_PULL_UP;
+	gpio_init_structure.Speed = LL_GPIO_SPEED_HIGH;
+	LL_GPIO_Init( GPIOB, &gpio_init_structure );
+	
+	LL_APB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_GPIOB ); //open IO reusable clock
+	
+	LL_EXTI_InitTypeDef exti_init_structure;
+	LL_EXTI_ClearFlag_0_31( LL_EXTI_LINE_3 );
+	exti_init_structure.Line_0_31 = LL_EXTI_LINE_3;
+	exti_init_structure.Mode = LL_EXTI_MODE_IT;
+	exti_init_structure.Trigger = LL_EXTI_TRIGGER_FALLING;
+	exti_init_structure.LineCommand = ENABLE;
+	LL_EXTI_Init( &exti_init_structure );
+	
+	//LL_SYSCFG_SetEXTISource( LL_SYSCFG_EXTI_PORTB, LL_EXTI_LINE_3 );
+	LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTB, LL_SYSCFG_EXTI_LINE3);
+  NVIC_SetPriority(EXTI2_3_IRQn, 0);
+  NVIC_EnableIRQ(EXTI2_3_IRQn);
+}	
 /* USER CODE END 0 */
 
 /**
@@ -182,23 +207,24 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  //MX_ADC_Init();
+  MX_ADC_Init();
   MX_USART1_UART_Init();
-  //MX_TIM3_Init();
-  //MX_TIM14_Init();
-  //MX_TIM16_Init();
-  //MX_I2C1_SMBUS_Init();
-  //MX_TIM1_Init();
+  MX_TIM3_Init();
+  MX_TIM14_Init();
+  MX_TIM16_Init();
+  MX_I2C1_SMBUS_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 	BeepInit();
 	LEDInit();
-	KEYInit();
-
+	//KEYInit();
+	//EXTI_KEYInit();  // if process configuration in STM32CubeMX, don't need this line 
+	
 	delay_ms( 500 );
 	USART1_printf( "started \r\n" );
 	delay_ms( 500 );
 	BEEP_ON();
-	delay_ms( 500 );
+	delay_ms( 100 );
 	BEEP_OFF();
   delay_ms( 500 );
   /* USER CODE END 2 */
@@ -225,16 +251,13 @@ int main(void)
 		LL_GPIO_ResetOutputPin( GPIOA, LED1_PIN );
 		delay_ms( 1500 );
 		*/
-		
+		/*		
 		if( 0 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {  // check if key down. if key down, the pin is a reset signal
 			delay_ms(5);
-			//USART1_printf( "key1 down\r\n" );
 			while( 0 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {   // wait for key up
 				;				
 			}
 			delay_ms(5);
-			//USART1_printf( "key1 up\r\n" );
-			//delay_ms(5);
 			USART1_printf( "key1 pressed\r\n" );
 		}
 		if( 0 == LL_GPIO_IsInputPinSet( GPIOA, KEY2_PIN ) ) {
@@ -245,10 +268,29 @@ int main(void)
 			delay_ms(5);
 			USART1_printf( "key2 pressed" );
 		}
+		*/
 		USART1_printf( "...\r\n" );
 		delay_ms( 100 );
 	}
   /* USER CODE END 3 */
+}
+
+void EXTI0_1_IRQHandler_callback(void)
+{
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
+		USART1_printf( "key1 IRQHandler!\r\n" );
+  }
+}
+
+void EXTI2_3_IRQHandler_callback(void)
+{
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_3) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_3);
+		USART1_printf( "key2 IRQHandler!\r\n" );
+  }
 }
 
 /**

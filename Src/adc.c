@@ -41,9 +41,7 @@ void MX_ADC_Init(void)
   PA0   ------> ADC_IN0
   PA2   ------> ADC_IN2
   PA3   ------> ADC_IN3
-  PA4   ------> ADC_IN4
   PA5   ------> ADC_IN5
-  PA6   ------> ADC_IN6
   PA7   ------> ADC_IN7
   PB0   ------> ADC_IN8
   PB1   ------> ADC_IN9 
@@ -63,17 +61,7 @@ void MX_ADC_Init(void)
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_4;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
   GPIO_InitStruct.Pin = LL_GPIO_PIN_5;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -104,13 +92,7 @@ void MX_ADC_Init(void)
   LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_3);
   /** Configure Regular Channel 
   */
-  LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_4);
-  /** Configure Regular Channel 
-  */
   LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_5);
-  /** Configure Regular Channel 
-  */
-  LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_6);
   /** Configure Regular Channel 
   */
   LL_ADC_REG_SetSequencerChAdd(ADC1, LL_ADC_CHANNEL_7);
