@@ -226,10 +226,10 @@ int main(void)
 		delay_ms( 1500 );
 		*/
 		
-		if( 1 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {  // if key down
+		if( 0 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {  // check if key down. if key down, the pin is a reset signal
 			delay_ms(5);
 			//USART1_printf( "key1 down\r\n" );
-			while( 1 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {   // wait for key up
+			while( 0 == LL_GPIO_IsInputPinSet( GPIOB, KEY1_PIN ) ) {   // wait for key up
 				;				
 			}
 			delay_ms(5);
@@ -237,15 +237,16 @@ int main(void)
 			//delay_ms(5);
 			USART1_printf( "key1 pressed\r\n" );
 		}
-		if( 1 == LL_GPIO_IsInputPinSet( GPIOA, KEY2_PIN ) ) {
+		if( 0 == LL_GPIO_IsInputPinSet( GPIOA, KEY2_PIN ) ) {
 			delay_ms(5);
-			while( 1 == LL_GPIO_IsInputPinSet( GPIOB, KEY2_PIN ) ) {
+			while( 0 == LL_GPIO_IsInputPinSet( GPIOA, KEY2_PIN ) ) {
 				;
 			}
 			delay_ms(5);
 			USART1_printf( "key2 pressed" );
 		}
 		USART1_printf( "...\r\n" );
+		delay_ms( 100 );
 	}
   /* USER CODE END 3 */
 }
