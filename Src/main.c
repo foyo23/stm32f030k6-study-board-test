@@ -171,6 +171,24 @@ void EXTI_KEYInit() {
   NVIC_SetPriority(EXTI2_3_IRQn, 0);
   NVIC_EnableIRQ(EXTI2_3_IRQn);
 }	
+
+void EXTI0_1_IRQHandler_callback(void)
+{
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
+		USART1_printf( "key1 IRQHandler!\r\n" );
+  }
+}
+
+void EXTI2_3_IRQHandler_callback(void)
+{
+  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_3) != RESET)
+  {
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_3);
+		USART1_printf( "key2 IRQHandler!\r\n" );
+  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -273,24 +291,6 @@ int main(void)
 		delay_ms( 100 );
 	}
   /* USER CODE END 3 */
-}
-
-void EXTI0_1_IRQHandler_callback(void)
-{
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
-		USART1_printf( "key1 IRQHandler!\r\n" );
-  }
-}
-
-void EXTI2_3_IRQHandler_callback(void)
-{
-  if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_3) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_3);
-		USART1_printf( "key2 IRQHandler!\r\n" );
-  }
 }
 
 /**
