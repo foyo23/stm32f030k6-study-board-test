@@ -73,6 +73,7 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 void EXTI0_1_IRQHandler_callback(void);
 void EXTI2_3_IRQHandler_callback(void);
+void TIM17_IRQHandler_callback(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

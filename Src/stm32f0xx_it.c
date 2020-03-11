@@ -147,7 +147,7 @@ void EXTI0_1_IRQHandler(void)
   /* USER CODE BEGIN EXTI0_1_IRQn 0 */
 	EXTI0_1_IRQHandler_callback();
 	return;
-	/* USER CODE END EXTI0_1_IRQn 0 */
+  /* USER CODE END EXTI0_1_IRQn 0 */
   if (LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_1) != RESET)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_1);
@@ -182,16 +182,16 @@ void EXTI2_3_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM16 global interrupt.
+  * @brief This function handles TIM17 global interrupt.
   */
-void TIM16_IRQHandler(void)
+void TIM17_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM16_IRQn 0 */
+  /* USER CODE BEGIN TIM17_IRQn 0 */
+	TIM17_IRQHandler_callback();
+  /* USER CODE END TIM17_IRQn 0 */
+  /* USER CODE BEGIN TIM17_IRQn 1 */
 
-  /* USER CODE END TIM16_IRQn 0 */
-  /* USER CODE BEGIN TIM16_IRQn 1 */
-
-  /* USER CODE END TIM16_IRQn 1 */
+  /* USER CODE END TIM17_IRQn 1 */
 }
 
 /**

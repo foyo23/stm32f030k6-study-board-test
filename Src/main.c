@@ -189,6 +189,114 @@ void EXTI2_3_IRQHandler_callback(void)
 		USART1_printf( "key2 IRQHandler!\r\n" );
   }
 }
+
+// number to show on Numeric Display
+uint8_t number[4] ;
+// segment bit data for same anode Numeric Display
+uint8_t const Data[16] = {0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0x88,0x83,0xc6,0xa1,0x86,0x8e};
+// PB4 is the CLK pin of the HC164D chip
+#define CLK_Set() LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_4) //set PB4 high level
+#define CLK_ReSet() LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_4) //set PB4 low level
+// PA2 is the data input pin of the HC164D chip
+#define DAT_Set() LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_2) //set PA2 high level
+#define DAT_ReSet() LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_2) //reset PA2 low level
+// A15: first Digital; A11: second; A12: third; A8: forth
+#define SMG_1_ON() LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_15)    
+#define SMG_2_ON() LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11)  
+#define SMG_3_ON() LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_12)  
+#define SMG_4_ON() LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_8) 
+
+#define SMG_1_OFF() LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_15)
+#define SMG_2_OFF() LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_11)
+#define SMG_3_OFF() LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_12)
+#define SMG_4_OFF() LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_8)
+
+void SMG_PIN_Init() {
+	LL_GPIO_InitTypeDef gpio_init_instructure;
+	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_GPIOB );
+	gpio_init_instructure.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_15 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_8;
+	gpio_init_instructure.Mode = LL_GPIO_MODE_OUTPUT;
+	gpio_init_instructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	gpio_init_instructure.Pull = LL_GPIO_PULL_NO;
+	gpio_init_instructure.Speed = LL_GPIO_SPEED_HIGH;
+	LL_GPIO_Init( GPIOA, &gpio_init_instructure );
+	
+	gpio_init_instructure.Pin = LL_GPIO_PIN_4;
+	gpio_init_instructure.Mode = LL_GPIO_MODE_OUTPUT;
+	gpio_init_instructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	gpio_init_instructure.Pull = LL_GPIO_PULL_NO;
+	gpio_init_instructure.Speed = LL_GPIO_SPEED_HIGH;
+	LL_GPIO_Init( GPIOB, &gpio_init_instructure );
+	
+	CLK_ReSet();
+}
+
+void HC164D_WriteData( uint8_t data ) {
+	uint8_t i;
+	for( i=0; i<8; i++ ) {
+		CLK_ReSet();
+		if( data & 0x80 ) {
+			DAT_Set();
+		} else {
+			DAT_ReSet();
+		}
+		CLK_Set();
+		data <<= 1;
+	}
+	CLK_ReSet();
+}
+
+uint8_t	count, SMGtimes, SMGBit;
+uint16_t tim = 0;
+
+void TIM17_IRQHandler_callback() {
+	USART1_printf( "tim17 ... \r\n" );
+	if(TIM_GetITStatus(TIM17, TIM_IT_Update) != RESET)  //
+	{
+		TIM_ClearITPendingBit(TIM17 , TIM_IT_Update);  //
+		count++;						//
+		if(count >= 5)		  //
+		{
+			count = 0;				//
+			SMGtimes++;
+      switch(SMGtimes)
+      {
+      case 1:					//
+        SMG_1_ON();
+        SMG_2_OFF();
+        SMG_3_OFF();
+        SMG_4_OFF();
+        SMGBit = 0;
+        break;
+      case 2:					//
+        SMG_1_OFF();
+        SMG_2_ON();
+        SMG_3_OFF();
+        SMG_4_OFF();
+        SMGBit = 1;
+        break;
+      case 3:					//
+        SMG_1_OFF();
+        SMG_2_OFF(); 
+        SMG_3_ON();
+        SMG_4_OFF();
+        SMGBit = 2;
+        break;	
+      case 4:					//
+        SMG_1_OFF();
+        SMG_2_OFF();
+        SMG_3_OFF();
+        SMG_4_ON();
+        SMGBit = 3;
+        SMGtimes = 0;
+        break;
+      default:
+        break;
+      }
+      HC164D_WriteData( Data[ number[SMGBit] ] );//
+		}
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -228,15 +336,18 @@ int main(void)
   MX_ADC_Init();
   MX_USART1_UART_Init();
   MX_TIM3_Init();
-  MX_TIM14_Init();
-  MX_TIM16_Init();
   MX_I2C1_SMBUS_Init();
   MX_TIM1_Init();
+  MX_TIM17_Init();
+  MX_TIM14_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+	LL_TIM_SetPrescaler( TIM17, (48-1) );
 	BeepInit();
 	LEDInit();
 	//KEYInit();
 	//EXTI_KEYInit();  // if process configuration in STM32CubeMX, don't need this line 
+	SMG_PIN_Init();
 	
 	delay_ms( 500 );
 	USART1_printf( "started \r\n" );
@@ -245,7 +356,13 @@ int main(void)
 	delay_ms( 100 );
 	BEEP_OFF();
   delay_ms( 500 );
-  /* USER CODE END 2 */
+  
+	number[0] = 1;
+	number[1] = 2;
+	number[2] = 3;
+	number[3] = 4;
+	
+	/* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
