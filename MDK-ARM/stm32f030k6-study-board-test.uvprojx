@@ -52,8 +52,8 @@
           <OutputName>stm32f030k6-study-board-test</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>1</CreateHexFile>
-          <DebugInformation>1</DebugInformation>
+          <CreateHexFile>0</CreateHexFile>
+          <DebugInformation>0</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath></ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4107</DriverSelection>
+            <DriverSelection>4101</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_FULL_LL_DRIVER,STM32F030x6,HSE_VALUE=8000000,HSE_STARTUP_TIMEOUT=100,LSE_STARTUP_TIMEOUT=5000,LSE_VALUE=32768,HSI_VALUE=8000000,LSI_VALUE=40000,VDD_VALUE=3300,PREFETCH_ENABLE=1,INSTRUCTION_CACHE_ENABLE=0,DATA_CACHE_ENABLE=0</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;     ../Drivers/STM32F0xx_HAL_Driver/Inc;     ../Drivers/CMSIS/Device/ST/STM32F0xx/Include;     ../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Inc;             ../Drivers/STM32F0xx_HAL_Driver/Inc;             ../Drivers/CMSIS/Device/ST/STM32F0xx/Include;             ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

@@ -182,16 +182,16 @@ void EXTI2_3_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM17 global interrupt.
+  * @brief This function handles TIM3 global interrupt.
   */
-void TIM17_IRQHandler(void)
+void TIM3_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM17_IRQn 0 */
-	TIM17_IRQHandler_callback();
-  /* USER CODE END TIM17_IRQn 0 */
-  /* USER CODE BEGIN TIM17_IRQn 1 */
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+	TIM3_IRQHandler_callback();
+  /* USER CODE END TIM3_IRQn 0 */
+  /* USER CODE BEGIN TIM3_IRQn 1 */
 
-  /* USER CODE END TIM17_IRQn 1 */
+  /* USER CODE END TIM3_IRQn 1 */
 }
 
 /**

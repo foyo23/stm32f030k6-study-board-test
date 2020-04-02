@@ -84,7 +84,7 @@ void delay_ms( short time )
 	short i = 0;
 	while( time-- )
 	{
-		i = 5000;
+		i = 48000;
 		while( i-- );
 	}
 }
@@ -191,7 +191,6 @@ void EXTI2_3_IRQHandler_callback(void)
 }
 
 // number to show on Numeric Display
-uint8_t number[4] ;
 // segment bit data for same anode Numeric Display
 uint8_t const Data[16] = {0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0x88,0x83,0xc6,0xa1,0x86,0x8e};
 // PB4 is the CLK pin of the HC164D chip
@@ -213,7 +212,7 @@ uint8_t const Data[16] = {0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0x88
 
 void SMG_PIN_Init() {
 	LL_GPIO_InitTypeDef gpio_init_instructure;
-	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_GPIOB );
+	LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_GPIOB | LL_AHB1_GRP1_PERIPH_GPIOB );
 	gpio_init_instructure.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_15 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_8;
 	gpio_init_instructure.Mode = LL_GPIO_MODE_OUTPUT;
 	gpio_init_instructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -246,18 +245,23 @@ void HC164D_WriteData( uint8_t data ) {
 	CLK_ReSet();
 }
 
-uint8_t	count, SMGtimes, SMGBit;
+uint8_t number[4];
+uint8_t	count=0, SMGtimes=0, SMGBit=0;
 uint16_t tim = 0;
 
 void TIM17_IRQHandler_callback() {
-	USART1_printf( "tim17 ... \r\n" );
-	if(TIM_GetITStatus(TIM17, TIM_IT_Update) != RESET)  //
+	//USART1_printf( "tim17 ... \r\n" );
+}
+
+void TIM3_IRQHandler_callback() {
+	count++;						//
+	if(count >= 5)		  //
 	{
-		TIM_ClearITPendingBit(TIM17 , TIM_IT_Update);  //
-		count++;						//
-		if(count >= 5)		  //
-		{
-			count = 0;				//
+		count = 0;				//
+		//USART1_printf( "tim3 ... \r\n" );
+		//SMG_1_ON();
+		//HC164D_WriteData( Data[0] );
+		
 			SMGtimes++;
       switch(SMGtimes)
       {
@@ -293,7 +297,59 @@ void TIM17_IRQHandler_callback() {
       default:
         break;
       }
-      HC164D_WriteData( Data[ number[SMGBit] ] );//
+			//number[0] = 9;
+			//number[1] = 8;
+			//number[2] = 7;
+			//number[3] = 6;
+			HC164D_WriteData( Data[ number[SMGBit] ] );
+			//HC164D_WriteData( Data[ u ] );
+	}
+	return;
+	
+	//if(TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)  //
+	{
+		//TIM_ClearITPendingBit(TIM3 , TIM_IT_Update);  //
+		count++;						//
+		if(count >= 5)		  //
+		{
+			count = 0;				//
+			//SMGtimes++;
+      switch(SMGtimes)
+      {
+      case 1:					//
+        SMG_1_ON();
+        SMG_2_OFF();
+        SMG_3_OFF();
+        SMG_4_OFF();
+        SMGBit = 0;
+        break;
+      case 2:					//
+        SMG_1_OFF();
+        SMG_2_ON();
+        SMG_3_OFF();
+        SMG_4_OFF();
+        SMGBit = 1;
+        break;
+      case 3:					//
+        SMG_1_OFF();
+        SMG_2_OFF(); 
+        SMG_3_ON();
+        SMG_4_OFF();
+        SMGBit = 2;
+        break;	
+      case 4:					//
+        SMG_1_OFF();
+        SMG_2_OFF();
+        SMG_3_OFF();
+        SMG_4_ON();
+        SMGBit = 3;
+        SMGtimes = 0;
+        break;
+      default:
+        break;
+      }
+      //HC164D_WriteData( Data[ number[SMGBit] ] );//
+			HC164D_WriteData( Data[1] );
 		}
 	}
 }
@@ -317,11 +373,11 @@ int main(void)
 
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-
+	
   /* System interrupt init*/
 
   /* USER CODE BEGIN Init */
-
+	LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM3 );
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -337,35 +393,38 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM3_Init();
   MX_I2C1_SMBUS_Init();
-  MX_TIM1_Init();
-  MX_TIM17_Init();
-  MX_TIM14_Init();
-  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
-	LL_TIM_SetPrescaler( TIM17, (48-1) );
-	BeepInit();
-	LEDInit();
+	//BeepInit();
+	//LEDInit();
 	//KEYInit();
 	//EXTI_KEYInit();  // if process configuration in STM32CubeMX, don't need this line 
 	SMG_PIN_Init();
+	LL_TIM_EnableIT_UPDATE( TIM3 ); // enable TIM3 interrupt
+	LL_TIM_EnableCounter( TIM3 ); // start counter
+	//LL_TIM_EnableIT_UPDATE( TIM17 ); // enable TIM17 interrupt
+	//LL_TIM_EnableCounter( TIM17 ); // start counter
 	
-	delay_ms( 500 );
+	//delay_ms( 500 );
 	USART1_printf( "started \r\n" );
-	delay_ms( 500 );
-	BEEP_ON();
-	delay_ms( 100 );
-	BEEP_OFF();
-  delay_ms( 500 );
+	//delay_ms( 500 );
+	//BEEP_ON();
+	//delay_ms( 50 );
+	//BEEP_OFF();
+  //delay_ms( 500 );
   
-	number[0] = 1;
+	number[0] = 5;
 	number[1] = 2;
-	number[2] = 3;
+	number[2] = 9;
 	number[3] = 4;
 	
-	/* USER CODE END 2 */
+	SMG_1_ON();
+	USART1_printf( "on \r\n" );
+	HC164D_WriteData( 0xc0 );
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	int n = 0;
   while (1)
   {
     /* USER CODE END WHILE */
@@ -404,8 +463,13 @@ int main(void)
 			USART1_printf( "key2 pressed" );
 		}
 		*/
-		USART1_printf( "...\r\n" );
-		delay_ms( 100 );
+		//USART1_printf( "write data...\r\n" );
+		//LL_GPIO_TogglePin( led1_GPIO_Port, led1_Pin );
+		//HC164D_WriteData( Data[n] );
+		delay_ms( 500 );
+		//LL_mDelay( 1000 );
+		n++;
+		if( n>15 ) n = 0;
 	}
   /* USER CODE END 3 */
 }
